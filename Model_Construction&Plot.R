@@ -1,0 +1,31 @@
+# LASSO-Cox regression analysis & plots
+library(survival)
+library (glmnet)
+mydata <- read.csv(file = "file_name",header = TRUE)
+mydata <- data.frame (mydata)
+x = as.matrix(mydata[ , ])
+x <- scale(x, center=T,scale=T)
+y <- Surv(mydata$time,mydata$status==1)
+lasso.cox <- glmnet(x,y, family="cox", alpha=1)
+cvfit <- cv.glmnet(x, y, family = "cox", nfold=10, alpha=1)
+par(mai=c(1,1,1,1))
+plot (cvfit, xlab="Log(lambda)", cex.axis =1.2,cex.lab = 1.2)
+plot(la,xlab="lambda", cex.axis =1.2,cex.lab = 1.2,lwd=2,label=TRUE)
+abline(v=log(cvfit $ lambda.min),lwd=2, col="black")
+abline(v=log(cvfit $ lambda.1se),lwd=2, col="grey")
+box(which = "plot", col = "black", lwd = 2)
+coef(cvfit, s="lambda.min")
+
+# Multivariable Cox model
+library(survival)
+res.cox<-coxph(Surv(time,status)~ ,data=mydata)
+res.cox<- step(res.cox, direction = "backward")
+summary(res.cox)
+
+#Proportional hazards assumption & scaled Schoenfeld residual plots
+library(survival)
+library(survminer)
+res.cox<-coxph(Surv(time,status)~ , data=mydata)
+temp <- cox.zph(res.cox)
+print(temp)
+ggcoxzph(temp, point.col = "black", point.size = 2, point.shape = 1)
